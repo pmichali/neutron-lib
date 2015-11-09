@@ -14,14 +14,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from debtcollector import removals
 from oslo_config import cfg
 from oslo_log import log as logging
 import oslo_messaging
 from oslo_messaging import serializer as om_serializer
 from oslo_service import service
 
-from neutron_lib.common import exceptions
-from neutron_lib import context
+from neutron.common import exceptions
+from neutron import context
 
 
 LOG = logging.getLogger(__name__)
@@ -157,7 +158,7 @@ class Service(service.Service):
     def start(self):
         super(Service, self).start()
 
-        self.conn = create_connection(new=True)
+        self.conn = create_connection()
         LOG.debug("Creating Consumer connection for Service %s",
                   self.topic)
 
@@ -220,6 +221,7 @@ class VoidConnection(object):
 
 
 # functions
+@removals.removed_kwarg('new')
 def create_connection(new=True):
     # NOTE(salv-orlando): This is a clever interpretation of the factory design
     # patter aimed at preventing plugins from initializing RPC servers upon
