@@ -135,44 +135,6 @@ def _process_rules_list(rules, match_rule):
     return rules
 
 
-def _build_match_rule(action, target, pluralized):
-    """Create the rule to match for a given action.
-
-    The policy rule to be matched is built in the following way:
-    1) add entries for matching permission on objects
-    2) add an entry for the specific action (e.g.: create_network)
-    3) add an entry for attributes of a resource for which the action
-       is being executed (e.g.: create_network:shared)
-    4) add an entry for sub-attributes of a resource for which the
-       action is being executed
-       (e.g.: create_router:external_gateway_info:network_id)
-    """
-    match_rule = policy.RuleCheck('rule', action)
-    resource, is_write = get_resource_and_action(action, pluralized)
-    # Attribute-based checks shall not be enforced on GETs
-    if is_write:
-        # assigning to variable with short name for improving readability
-        res_map = attributes.RESOURCE_ATTRIBUTE_MAP
-        if resource in res_map:
-            for attribute_name in res_map[resource]:
-                if _is_attribute_explicitly_set(attribute_name,
-                                                res_map[resource],
-                                                target, action):
-                    attribute = res_map[resource][attribute_name]
-                    if 'enforce_policy' in attribute:
-                        attr_rule = policy.RuleCheck('rule', '%s:%s' %
-                                                     (action, attribute_name))
-                        # Build match entries for sub-attributes
-                        if _should_validate_sub_attributes(
-                                attribute, target[attribute_name]):
-                            attr_rule = policy.AndCheck(
-                                [attr_rule, _build_subattr_match_rule(
-                                    attribute_name, attribute,
-                                    action, target)])
-                        match_rule = policy.AndCheck([match_rule, attr_rule])
-    return match_rule
-
-
 # This check is registered as 'tenant_id' so that it can override
 # GenericCheck which was used for validating parent resource ownership.
 # This will prevent us from having to handling backward compatibility
@@ -265,40 +227,6 @@ class OwnerCheck(policy.Check):
         if self.kind in creds:
             return match == six.text_type(creds[self.kind])
         return False
-
-
-@policy.register('field')
-class FieldCheck(policy.Check):
-    def __init__(self, kind, match):
-        # Process the match
-        resource, field_value = match.split(':', 1)
-        field, value = field_value.split('=', 1)
-
-        super(FieldCheck, self).__init__(kind, '%s:%s:%s' %
-                                         (resource, field, value))
-
-        # Value might need conversion - we need help from the attribute map
-        try:
-            attr = attributes.RESOURCE_ATTRIBUTE_MAP[resource][field]
-            conv_func = attr['convert_to']
-        except KeyError:
-            conv_func = lambda x: x
-
-        self.field = field
-        self.value = conv_func(value)
-        self.regex = re.compile(value[1:]) if value.startswith('~') else None
-
-    def __call__(self, target_dict, cred_dict, enforcer):
-        target_value = target_dict.get(self.field)
-        # target_value might be a boolean, explicitly compare with None
-        if target_value is None:
-            LOG.debug("Unable to find requested field: %(field)s in target: "
-                      "%(target_dict)s",
-                      {'field': self.field, 'target_dict': target_dict})
-            return False
-        if self.regex:
-            return bool(self.regex.match(target_value))
-        return target_value == self.value
 
 
 def _prepare_check(context, action, target, pluralized):
