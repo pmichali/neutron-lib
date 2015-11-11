@@ -21,8 +21,6 @@ from oslo_policy import policy
 
 
 _ENFORCER = None
-ADMIN_CTX_POLICY = 'context_is_admin'
-ADVSVC_CTX_POLICY = 'context_is_advsvc'
 
 
 def reset():
