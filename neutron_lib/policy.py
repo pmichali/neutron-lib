@@ -22,6 +22,9 @@ from oslo_policy import policy
 
 _ENFORCER = None
 
+ADMIN_CTX_POLICY = 'context_is_admin'
+ADVSVC_CTX_POLICY = 'context_is_advsvc'
+
 
 def reset():
     global _ENFORCER
@@ -43,3 +46,23 @@ def refresh(policy_file=None):
     """Reset policy and init a new instance of Enforcer."""
     reset()
     init(policy_file=policy_file)
+
+
+def check_is_admin(context):
+    """Verify context has admin rights according to policy settings."""
+    init()
+    # the target is user-self
+    credentials = context.to_dict()
+    if ADMIN_CTX_POLICY not in _ENFORCER.rules:
+        return False
+    return _ENFORCER.enforce(ADMIN_CTX_POLICY, credentials, credentials)
+
+
+def check_is_advsvc(context):
+    """Verify context has advsvc rights according to policy settings."""
+    init()
+    # the target is user-self
+    credentials = context.to_dict()
+    if ADVSVC_CTX_POLICY not in _ENFORCER.rules:
+        return False
+    return _ENFORCER.enforce(ADVSVC_CTX_POLICY, credentials, credentials)
