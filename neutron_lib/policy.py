@@ -20,26 +20,31 @@ from oslo_config import cfg
 from oslo_policy import policy
 
 
-POLICY_ENFORCER = None
+_ENFORCER = None
 
 ADMIN_CTX_POLICY = 'context_is_admin'
 ADVSVC_CTX_POLICY = 'context_is_advsvc'
 
 
+def policy_enforcer():
+    """Provided so other modules can access this."""
+    return _ENFORCER
+
+
 def reset():
-    global POLICY_ENFORCER
-    if POLICY_ENFORCER:
-        POLICY_ENFORCER.clear()
-        POLICY_ENFORCER = None
+    global _ENFORCER
+    if _ENFORCER:
+        _ENFORCER.clear()
+        _ENFORCER = None
 
 
 def init(conf=cfg.CONF, policy_file=None):
     """Init an instance of the Enforcer class."""
 
-    global POLICY_ENFORCER
-    if not POLICY_ENFORCER:
-        POLICY_ENFORCER = policy.Enforcer(conf, policy_file=policy_file)
-        POLICY_ENFORCER.load_rules(True)
+    global _ENFORCER
+    if not _ENFORCER:
+        _ENFORCER = policy.Enforcer(conf, policy_file=policy_file)
+        _ENFORCER.load_rules(True)
 
 
 def refresh(policy_file=None):
@@ -53,9 +58,9 @@ def check_is_admin(context):
     init()
     # the target is user-self
     credentials = context.to_dict()
-    if ADMIN_CTX_POLICY not in POLICY_ENFORCER.rules:
+    if ADMIN_CTX_POLICY not in _ENFORCER.rules:
         return False
-    return POLICY_ENFORCER.enforce(ADMIN_CTX_POLICY, credentials, credentials)
+    return _ENFORCER.enforce(ADMIN_CTX_POLICY, credentials, credentials)
 
 
 def check_is_advsvc(context):
@@ -63,6 +68,6 @@ def check_is_advsvc(context):
     init()
     # the target is user-self
     credentials = context.to_dict()
-    if ADVSVC_CTX_POLICY not in POLICY_ENFORCER.rules:
+    if ADVSVC_CTX_POLICY not in _ENFORCER.rules:
         return False
-    return POLICY_ENFORCER.enforce(ADVSVC_CTX_POLICY, credentials, credentials)
+    return _ENFORCER.enforce(ADVSVC_CTX_POLICY, credentials, credentials)
