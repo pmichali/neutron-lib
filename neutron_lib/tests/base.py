@@ -34,7 +34,7 @@ import testtools
 
 # PCM: Must resolve these!
 from neutron.api.rpc.callbacks.consumer import registry as rpc_consumer_reg
-from neutron.callbacks import manager as registry_manager
+from neutron_lib.callbacks import manager as registry_manager
 from neutron.tests import fake_notifier
 from neutron.tests import post_mortem_debug
 from neutron.tests import tools
