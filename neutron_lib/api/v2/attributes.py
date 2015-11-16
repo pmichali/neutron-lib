@@ -354,7 +354,7 @@ def _validate_subnet_or_none(data, valid_values=None):
         return validate_subnet(data, valid_values)
 
 
-def _validate_regex(data, valid_values=None):
+def validate_regex(data, valid_values=None):
     try:
         if re.match(valid_values, data):
             return
@@ -368,7 +368,7 @@ def _validate_regex(data, valid_values=None):
 
 def _validate_regex_or_none(data, valid_values=None):
     if data is not None:
-        return _validate_regex(data, valid_values)
+        return validate_regex(data, valid_values)
 
 
 def _validate_subnetpool_id(data, valid_values=None):
@@ -617,7 +617,7 @@ validators = {'type:dict': validate_dict,
               'type:nameservers': _validate_nameservers,
               'type:non_negative': _validate_non_negative,
               'type:range': _validate_range,
-              'type:regex': _validate_regex,
+              'type:regex': validate_regex,
               'type:regex_or_none': _validate_regex_or_none,
               'type:string': _validate_string,
               'type:string_or_none': validate_string_or_none,
