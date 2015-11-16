@@ -77,7 +77,7 @@ def is_attr_set(attribute):
     return not (attribute is None or attribute is ATTR_NOT_SPECIFIED)
 
 
-def _validate_values(data, valid_values=None):
+def validate_values(data, valid_values=None):
     if data not in valid_values:
         msg = (_("'%(data)s' is not in %(valid_values)s") %
                {'data': data, 'valid_values': valid_values})
@@ -258,7 +258,7 @@ def _validate_fixed_ips(data, valid_values=None):
                 return msg
             ips.append(fixed_ip_address)
         if 'subnet_id' in fixed_ip:
-            msg = _validate_uuid(fixed_ip['subnet_id'])
+            msg = validate_uuid(fixed_ip['subnet_id'])
             if msg:
                 return msg
 
@@ -349,7 +349,7 @@ def _validate_subnet_list(data, valid_values=None):
             return msg
 
 
-def _validate_subnet_or_none(data, valid_values=None):
+def validate_subnet_or_none(data, valid_values=None):
     if data is not None:
         return validate_subnet(data, valid_values)
 
@@ -381,7 +381,7 @@ def _validate_subnetpool_id_or_none(data, valid_values=None):
         return _validate_subnetpool_id(data, valid_values)
 
 
-def _validate_uuid(data, valid_values=None):
+def validate_uuid(data, valid_values=None):
     if not uuidutils.is_uuid_like(data):
         msg = _("'%s' is not a valid UUID") % data
         LOG.debug(msg)
@@ -390,17 +390,17 @@ def _validate_uuid(data, valid_values=None):
 
 def _validate_uuid_or_none(data, valid_values=None):
     if data is not None:
-        return _validate_uuid(data)
+        return validate_uuid(data)
 
 
-def _validate_uuid_list(data, valid_values=None):
+def validate_uuid_list(data, valid_values=None):
     if not isinstance(data, list):
         msg = _("'%s' is not a list") % data
         LOG.debug(msg)
         return msg
 
     for item in data:
-        msg = _validate_uuid(item)
+        msg = validate_uuid(item)
         if msg:
             return msg
 
@@ -626,13 +626,13 @@ validators = {'type:dict': validate_dict,
               _validate_not_empty_string_or_none,
               'type:subnet': validate_subnet,
               'type:subnet_list': _validate_subnet_list,
-              'type:subnet_or_none': _validate_subnet_or_none,
+              'type:subnet_or_none': validate_subnet_or_none,
               'type:subnetpool_id': _validate_subnetpool_id,
               'type:subnetpool_id_or_none': _validate_subnetpool_id_or_none,
-              'type:uuid': _validate_uuid,
+              'type:uuid': validate_uuid,
               'type:uuid_or_none': _validate_uuid_or_none,
-              'type:uuid_list': _validate_uuid_list,
-              'type:values': _validate_values,
+              'type:uuid_list': validate_uuid_list,
+              'type:values': validate_values,
               'type:boolean': _validate_boolean}
 
 # Define constants for base resource name
