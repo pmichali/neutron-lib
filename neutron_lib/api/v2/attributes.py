@@ -85,13 +85,13 @@ def validate_values(data, valid_values=None):
         return msg
 
 
-def _validate_not_empty_string_or_none(data, max_len=None):
+def validate_not_empty_string_or_none(data, max_len=None):
     if data is not None:
-        return _validate_not_empty_string(data, max_len=max_len)
+        return validate_not_empty_string(data, max_len=max_len)
 
 
-def _validate_not_empty_string(data, max_len=None):
-    msg = _validate_string(data, max_len=max_len)
+def validate_not_empty_string(data, max_len=None):
+    msg = validate_string(data, max_len=max_len)
     if msg:
         return msg
     if not data.strip():
@@ -102,10 +102,10 @@ def _validate_not_empty_string(data, max_len=None):
 
 def validate_string_or_none(data, max_len=None):
     if data is not None:
-        return _validate_string(data, max_len=max_len)
+        return validate_string(data, max_len=max_len)
 
 
-def _validate_string(data, max_len=None):
+def validate_string(data, max_len=None):
     if not isinstance(data, six.string_types):
         msg = _("'%s' is not a valid string") % data
         LOG.debug(msg)
@@ -127,7 +127,7 @@ def _validate_boolean(data, valid_values=None):
         return msg
 
 
-def _validate_range(data, valid_values=None):
+def validate_range(data, valid_values=None):
     """Check that integer value is within a range provided.
 
     Test is inclusive. Allows either limit to be ignored, to allow
@@ -156,7 +156,7 @@ def _validate_range(data, valid_values=None):
         return msg
 
 
-def _validate_no_whitespace(data):
+def validate_no_whitespace(data):
     """Validates that input has no whitespace."""
     if re.search(r'\s', data):
         msg = _("'%s' contains whitespace") % data
@@ -167,7 +167,7 @@ def _validate_no_whitespace(data):
 
 def validate_mac_address(data, valid_values=None):
     try:
-        valid_mac = netaddr.valid_mac(_validate_no_whitespace(data))
+        valid_mac = netaddr.valid_mac(validate_no_whitespace(data))
     except Exception:
         valid_mac = False
 
@@ -175,7 +175,7 @@ def validate_mac_address(data, valid_values=None):
         valid_mac = not netaddr.EUI(data) in map(netaddr.EUI,
                     constants.INVALID_MAC_ADDRESSES)
     # TODO(arosen): The code in this file should be refactored
-    # so it catches the correct exceptions. _validate_no_whitespace
+    # so it catches the correct exceptions. validate_no_whitespace
     # raises AttributeError if data is None.
     if not valid_mac:
         msg = _("'%s' is not a valid MAC address") % data
@@ -183,14 +183,14 @@ def validate_mac_address(data, valid_values=None):
         return msg
 
 
-def _validate_mac_address_or_none(data, valid_values=None):
+def validate_mac_address_or_none(data, valid_values=None):
     if data is not None:
         return validate_mac_address(data, valid_values)
 
 
 def validate_ip_address(data, valid_values=None):
     try:
-        netaddr.IPAddress(_validate_no_whitespace(data))
+        netaddr.IPAddress(validate_no_whitespace(data))
         # The followings are quick checks for IPv6 (has ':') and
         # IPv4.  (has 3 periods like 'xx.xx.xx.xx')
         # NOTE(yamamoto): netaddr uses libraries provided by the underlying
@@ -212,7 +212,7 @@ def validate_ip_address(data, valid_values=None):
         return msg
 
 
-def _validate_ip_pools(data, valid_values=None):
+def validate_ip_pools(data, valid_values=None):
     """Validate that start and end IP addresses are present.
 
     In addition to this the IP addresses will also be validated
@@ -233,7 +233,7 @@ def _validate_ip_pools(data, valid_values=None):
                 return msg
 
 
-def _validate_fixed_ips(data, valid_values=None):
+def validate_fixed_ips(data, valid_values=None):
     if not isinstance(data, list):
         msg = _("Invalid data format for fixed IP: '%s'") % data
         LOG.debug(msg)
@@ -263,7 +263,7 @@ def _validate_fixed_ips(data, valid_values=None):
                 return msg
 
 
-def _validate_nameservers(data, valid_values=None):
+def validate_nameservers(data, valid_values=None):
     if not hasattr(data, '__iter__'):
         msg = _("Invalid data format for nameserver: '%s'") % data
         LOG.debug(msg)
@@ -285,7 +285,7 @@ def _validate_nameservers(data, valid_values=None):
         hosts.append(host)
 
 
-def _validate_hostroutes(data, valid_values=None):
+def validate_hostroutes(data, valid_values=None):
     if not isinstance(data, list):
         msg = _("Invalid data format for hostroute: '%s'") % data
         LOG.debug(msg)
@@ -310,7 +310,7 @@ def _validate_hostroutes(data, valid_values=None):
         hostroutes.append(hostroute)
 
 
-def _validate_ip_address_or_none(data, valid_values=None):
+def validate_ip_address_or_none(data, valid_values=None):
     if data is not None:
         return validate_ip_address(data, valid_values)
 
@@ -318,7 +318,7 @@ def _validate_ip_address_or_none(data, valid_values=None):
 def validate_subnet(data, valid_values=None):
     msg = None
     try:
-        net = netaddr.IPNetwork(_validate_no_whitespace(data))
+        net = netaddr.IPNetwork(validate_no_whitespace(data))
         if '/' not in data or (net.version == 4 and str(net) != data):
             msg = _("'%(data)s' isn't a recognized IP subnet cidr,"
                     " '%(cidr)s' is recommended") % {"data": data,
@@ -366,7 +366,7 @@ def validate_regex(data, valid_values=None):
     return msg
 
 
-def _validate_regex_or_none(data, valid_values=None):
+def validate_regex_or_none(data, valid_values=None):
     if data is not None:
         return validate_regex(data, valid_values)
 
@@ -462,12 +462,12 @@ def validate_dict(data, key_specs=None):
             return msg
 
 
-def _validate_dict_or_none(data, key_specs=None):
+def validate_dict_or_none(data, key_specs=None):
     if data is not None:
         return validate_dict(data, key_specs)
 
 
-def _validate_dict_or_empty(data, key_specs=None):
+def validate_dict_or_empty(data, key_specs=None):
     if data != {}:
         return validate_dict(data, key_specs)
 
@@ -477,7 +477,7 @@ def _validate_dict_or_nodata(data, key_specs=None):
         return validate_dict(data, key_specs)
 
 
-def _validate_non_negative(data, valid_values=None):
+def validate_non_negative(data, valid_values=None):
     try:
         data = int(data)
     except (ValueError, TypeError):
@@ -604,26 +604,26 @@ MAC_PATTERN = "^%s[aceACE02468](:%s{2}){5}$" % (HEX_ELEM, HEX_ELEM)
 
 # Dictionary that maintains a list of validation functions
 validators = {'type:dict': validate_dict,
-              'type:dict_or_none': _validate_dict_or_none,
-              'type:dict_or_empty': _validate_dict_or_empty,
+              'type:dict_or_none': validate_dict_or_none,
+              'type:dict_or_empty': validate_dict_or_empty,
               'type:dict_or_nodata': _validate_dict_or_nodata,
-              'type:fixed_ips': _validate_fixed_ips,
-              'type:hostroutes': _validate_hostroutes,
+              'type:fixed_ips': validate_fixed_ips,
+              'type:hostroutes': validate_hostroutes,
               'type:ip_address': validate_ip_address,
-              'type:ip_address_or_none': _validate_ip_address_or_none,
-              'type:ip_pools': _validate_ip_pools,
+              'type:ip_address_or_none': validate_ip_address_or_none,
+              'type:ip_pools': validate_ip_pools,
               'type:mac_address': validate_mac_address,
-              'type:mac_address_or_none': _validate_mac_address_or_none,
-              'type:nameservers': _validate_nameservers,
-              'type:non_negative': _validate_non_negative,
-              'type:range': _validate_range,
+              'type:mac_address_or_none': validate_mac_address_or_none,
+              'type:nameservers': validate_nameservers,
+              'type:non_negative': validate_non_negative,
+              'type:range': validate_range,
               'type:regex': validate_regex,
-              'type:regex_or_none': _validate_regex_or_none,
-              'type:string': _validate_string,
+              'type:regex_or_none': validate_regex_or_none,
+              'type:string': validate_string,
               'type:string_or_none': validate_string_or_none,
-              'type:not_empty_string': _validate_not_empty_string,
+              'type:not_empty_string': validate_not_empty_string,
               'type:not_empty_string_or_none':
-              _validate_not_empty_string_or_none,
+              validate_not_empty_string_or_none,
               'type:subnet': validate_subnet,
               'type:subnet_list': _validate_subnet_list,
               'type:subnet_or_none': validate_subnet_or_none,

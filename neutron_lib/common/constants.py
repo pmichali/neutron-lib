@@ -30,6 +30,8 @@ FLOATINGIP_STATUS_ACTIVE = 'ACTIVE'
 FLOATINGIP_STATUS_DOWN = 'DOWN'
 FLOATINGIP_STATUS_ERROR = 'ERROR'
 
+DEVICE_OWNER_COMPUTE_PREFIX = "compute:"
+
 DEVICE_OWNER_ROUTER_HA_INTF = "network:router_ha_interface"
 DEVICE_OWNER_ROUTER_INTF = "network:router_interface"
 DEVICE_OWNER_ROUTER_GW = "network:router_gateway"
@@ -142,8 +144,8 @@ IPV6_MODES = [DHCPV6_STATEFUL, DHCPV6_STATELESS, IPV6_SLAAC]
 
 IPV6_LLA_PREFIX = 'fe80::/64'
 
-# Human-readable ID to which default_ipv6_subnet_pool should be set to
-# indicate that IPv6 Prefix Delegation should be used to allocate subnet CIDRs
+# Human-readable ID to which the subnetpool ID should be set to
+# indicate that IPv6 Prefix Delegation is enabled for a given subnet
 IPV6_PD_POOL_ID = 'prefix_delegation'
 
 # Special provisional prefix for IPv6 Prefix Delegation

@@ -44,8 +44,8 @@ from oslo_utils import importutils
 import six
 from stevedore import driver
 
-from neutron_lib.common import constants as n_const
-from neutron_lib.i18n import _LE
+from neutron.common import constants as n_const
+from neutron.i18n import _LE
 
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 LOG = logging.getLogger(__name__)
@@ -378,7 +378,7 @@ def is_dvr_serviced(device_owner):
     dvr_serviced_device_owners = (n_const.DEVICE_OWNER_LOADBALANCER,
                                   n_const.DEVICE_OWNER_LOADBALANCERV2,
                                   n_const.DEVICE_OWNER_DHCP)
-    return (device_owner.startswith('compute:') or
+    return (device_owner.startswith(n_const.DEVICE_OWNER_COMPUTE_PREFIX) or
             device_owner in dvr_serviced_device_owners)
 
 
@@ -479,7 +479,7 @@ def round_val(val):
                                              rounding=decimal.ROUND_HALF_UP))
 
 
-def replace_file(file_name, data):
+def replace_file(file_name, data, file_mode=0o644):
     """Replaces the contents of file_name with data in a safe manner.
 
     First write to a temp file and then rename. Since POSIX renames are
@@ -493,7 +493,7 @@ def replace_file(file_name, data):
                                      dir=base_dir,
                                      delete=False) as tmp_file:
         tmp_file.write(data)
-    os.chmod(tmp_file.name, 0o644)
+    os.chmod(tmp_file.name, file_mode)
     os.rename(tmp_file.name, file_name)
 
 
